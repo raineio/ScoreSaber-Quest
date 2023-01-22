@@ -43,7 +43,12 @@ struct IncludedAsset {
 
 namespace IncludedAssets {
 
+	DECLARE_FILE(PanelView_bsml)
+	DECLARE_FILE(ScoreSaberLeaderboardViewController_bsml)
+	DECLARE_FILE(basic_leaderboard_bsml)
+	DECLARE_FILE(basic_panel_double_text_bsml)
 	DECLARE_FILE(imber_panel_bsml)
 	DECLARE_FILE(replay_png)
+	DECLARE_FILE(scoresaber_png)
 
 }

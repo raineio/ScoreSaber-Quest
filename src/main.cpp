@@ -24,7 +24,11 @@
 #include "assets.hpp"
 #include "static.hpp"
 
+#include "leaderboardcore/shared/LeaderboardCore.hpp"
+#include "UI/Leaderboard/ScoreSaberCustomLeaderboard.hpp"
 ModInfo modInfo = {MOD_ID, VERSION};
+
+ScoreSaber::UI::Leaderboard::CustomLeaderboard leaderboard;
 
 // Loads the config from disk using our modInfo, then returns it for use
 Configuration& getConfig()
@@ -60,6 +64,7 @@ extern "C" __attribute((visibility("default"))) void load()
     // il2cpp_functions::Class_Init(classof(HMUI::CurvedTextMeshPro*));
     BSML::Init();
     QuestUI::Init();
+    LeaderboardCore::Register::RegisterLeaderboard(&leaderboard, modInfo);
     custom_types::Register::AutoRegister();
     Hooks::InstallHooks(ScoreSaber::Logging::getLogger());
     TeamUtils::Download();
