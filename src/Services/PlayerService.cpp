@@ -3,7 +3,6 @@
 
 #include "Data/Private/AuthResponse.hpp"
 #include "System/IO/Directory.hpp"
-#include "UI/Other/ScoreSaberLeaderboardView.hpp"
 #include "Utils/StringUtils.hpp"
 #include "beatsaber-hook/shared/config/rapidjson-utils.hpp"
 #include "logging.hpp"
@@ -11,8 +10,11 @@
 #include "questui/shared/CustomTypes/Components/MainThreadScheduler.hpp"
 #include "static.hpp"
 #include <chrono>
+#include "UI/Leaderboard/ScoreSaberCustomLeaderboard.hpp"
 
 using namespace StringUtils;
+
+extern ScoreSaber::UI::Leaderboard::CustomLeaderboard leaderboard;
 
 namespace ScoreSaber::Services::PlayerService
 {
@@ -133,12 +135,12 @@ namespace ScoreSaber::Services::PlayerService
         if (!fromMainThread)
         {
             QuestUI::MainThreadScheduler::Schedule([=]() {
-                ScoreSaber::UI::Other::ScoreSaberLeaderboardView::ScoreSaberBanner->set_loading(true);
+                leaderboard.get_panelViewController()->set_loading(true);
             });
         }
         else
         {
-            ScoreSaber::UI::Other::ScoreSaberLeaderboardView::ScoreSaberBanner->set_loading(true);
+            leaderboard.get_panelViewController()->set_loading(true);
         }
 
         GetPlayerInfo(playerInfo.localPlayerData.id, true, [=](std::optional<Data::Player> playerData) {
@@ -146,7 +148,7 @@ namespace ScoreSaber::Services::PlayerService
             {
                 playerInfo.localPlayerData = playerData.value();
                 QuestUI::MainThreadScheduler::Schedule([=]() {
-                    ScoreSaber::UI::Other::ScoreSaberLeaderboardView::ScoreSaberBanner->set_ranking(playerInfo.localPlayerData.rank, playerInfo.localPlayerData.pp);
+                    leaderboard.get_panelViewController()->set_ranking(playerInfo.localPlayerData.rank, playerInfo.localPlayerData.pp);
                 });
             }
         });
