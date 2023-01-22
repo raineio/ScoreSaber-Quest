@@ -81,3 +81,11 @@ extern "C" __attribute((visibility("default"))) void load()
 BSML_DATACACHE(replay_png) {
     return IncludedAssets::replay_png;
 }
+
+BSML_DATACACHE(scoresaber_png) {
+    return IncludedAssets::scoresaber_png;
+}
+
+BSML_DATACACHE(pixel_png) {
+    return IncludedAssets::pixel_png;
+}

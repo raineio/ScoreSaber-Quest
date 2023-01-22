@@ -75,7 +75,7 @@ namespace ScoreSaber::UI::Leaderboard
     void ScoreSaberLeaderboardViewController::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
     {
         if (firstActivation){
-            BSML::parse_and_construct(IncludedAssets::basic_leaderboard_bsml, get_transform(), this);
+            BSML::parse_and_construct(IncludedAssets::ScoreSaberLeaderboardViewController_bsml, get_transform(), this);
         }
     }
 }
