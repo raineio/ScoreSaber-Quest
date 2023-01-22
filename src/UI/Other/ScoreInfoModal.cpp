@@ -35,6 +35,7 @@
 #include "static.hpp"
 #include <map>
 #include <sstream>
+#include "UI/Leaderboard/ScoreSaberCustomLeaderboard.hpp"
 
 DEFINE_TYPE(ScoreSaber::UI::Other, ScoreInfoModal);
 
@@ -46,6 +47,8 @@ using namespace QuestUI::BeatSaberUI;
 using namespace TMPro;
 using namespace System;
 using namespace StringUtils;
+
+extern ScoreSaber::UI::Leaderboard::CustomLeaderboard leaderboard;
 
 #define SetPreferredSize(identifier, width, height)                                         \
     auto layout##identifier = identifier->get_gameObject()->GetComponent<LayoutElement*>(); \
@@ -428,17 +431,17 @@ namespace ScoreSaber::UI::Other
             SetReplayButtonState(false);
             replayEnabled = false;
             Hide();
-            ScoreSaber::UI::Other::ScoreSaberLeaderboardView::ScoreSaberBanner->set_prompt("Loading Replay...", -1);
+            leaderboard.get_panelViewController()->set_prompt("Loading Replay...", -1);
             ScoreSaber::ReplaySystem::ReplayLoader::GetReplayData(currentBeatmap, leaderboardId, replayFileName, currentScore, [=](bool result) {
                 QuestUI::MainThreadScheduler::Schedule([=]() {
                     if (result)
                     {
-                        ScoreSaber::UI::Other::ScoreSaberLeaderboardView::ScoreSaberBanner->set_prompt("Replay loaded!", 3);
+                        leaderboard.get_panelViewController()->set_prompt("Replay loaded!", 3);
                         ScoreSaber::ReplaySystem::ReplayLoader::StartReplay(currentBeatmap);
                     }
                     else
                     {
-                        ScoreSaber::UI::Other::ScoreSaberLeaderboardView::ScoreSaberBanner->set_prompt("Failed to load replay", 3);
+                        leaderboard.get_panelViewController()->set_prompt("Failed to load replay", 3);
                     }
                     SetReplayButtonState(true);
                     replayEnabled = true;
