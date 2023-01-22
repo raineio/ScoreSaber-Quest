@@ -55,6 +55,9 @@
 #include "questui/shared/QuestUI.hpp"
 #include <chrono>
 
+#include "bsml/shared/BSML.hpp"
+#include "assets.hpp"
+
 using namespace HMUI;
 using namespace QuestUI;
 using namespace QuestUI::BeatSaberUI;

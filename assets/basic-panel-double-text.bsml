@@ -1,0 +1,16 @@
+﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='https://raw.githubusercontent.com/RedBrumbler/Quest-BSML-Docs/gh-pages/schema.xsd'>
+  <vertical spacing="1" child-expand-width="false" child-expand-height="false" pref-width='70' pref-height='10'>
+    <macro.if value='isClickableTop'>
+      <clickable-text text='~topText' font-size="3.5" align='Left' hover-hint='~topHoverHint' on-click='ClickedTop' />
+    </macro.if>
+    <macro.if value='!isClickableTop'>
+      <text text='~topText' font-size="3.5" align='Left' hover-hint='~topHoverHint'/>
+    </macro.if>
+    <macro.if value='isClickableBottom'>
+      <clickable-text text='~bottomText' font-size="3.5" align='Left' hover-hint='~bottomHoverHint' on-click='ClickedBottom' />
+    </macro.if>
+    <macro.if value='!isClickableBottom'>
+      <text text='~bottomText' font-size="3.5" align='Left' hover-hint='~bottomHoverHint' />
+    </macro.if>
+    </vertical>
+</bg>
