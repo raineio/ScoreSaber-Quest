@@ -9,7 +9,7 @@
 
   <vertical horizontal-fit='PreferredSize' vertical-fit='PreferredSize' pref-width='76' pref-height='60' anchor-pos-x="7" anchor-pos-y="5.5">
     <leaderboard id='leaderboardTableView' cell-size='6.05'>
-      <loading-indicator id="leaderboard_loading" active="false" preserve-aspect="true" pref-width="15" pref-height="15" />
+      <loading-indicator id="leaderboard_loading" active="false" preserve-aspect="true" pref-width="15" pref-height="15" anchor-pos-x="-5"/>
     </leaderboard>
   </vertical>
 
