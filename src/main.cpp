@@ -29,6 +29,7 @@
 ModInfo modInfo = {MOD_ID, VERSION};
 
 ScoreSaber::UI::Leaderboard::CustomLeaderboard leaderboard;
+GlobalNamespace::IDifficultyBeatmap* currentDifficultyBeatmap;
 
 // Loads the config from disk using our modInfo, then returns it for use
 Configuration& getConfig()
@@ -76,6 +77,12 @@ extern "C" __attribute((visibility("default"))) void load()
     zenjector->Install<ScoreSaber::ReplaySystem::Installers::PlaybackInstaller*>(Lapiz::Zenject::Location::StandardPlayer);
     zenjector->Install<ScoreSaber::ReplaySystem::Installers::RecordInstaller*, GlobalNamespace::StandardGameplayInstaller*>();
     zenjector->Install<ScoreSaber::ReplaySystem::Installers::RecordInstaller*, GlobalNamespace::MultiplayerLocalActivePlayerInstaller*>();
+
+    LeaderboardCore::Events::NotifyLeaderboardSet() += [](GlobalNamespace::IDifficultyBeatmap* difficultyBeatmap){
+        currentDifficultyBeatmap = difficultyBeatmap;
+        auto vc = leaderboard.get_leaderboardViewController();
+        if (vc && vc->isActivated) vc->onLeaderboardSet(difficultyBeatmap);
+    };
 }
 
 BSML_DATACACHE(replay_png) {
@@ -88,4 +95,8 @@ BSML_DATACACHE(scoresaber_png) {
 
 BSML_DATACACHE(pixel_png) {
     return IncludedAssets::pixel_png;
+}
+
+BSML_DATACACHE(carat_png) {
+    return IncludedAssets::carat_png;
 }

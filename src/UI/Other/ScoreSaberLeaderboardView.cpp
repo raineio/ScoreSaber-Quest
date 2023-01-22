@@ -81,7 +81,6 @@ namespace ScoreSaber::UI::Other::ScoreSaberLeaderboardView
 
     UnityEngine::UI::Button* _pageUpButton;
     UnityEngine::UI::Button* _pageDownButton;
-    UnityEngine::UI::Button* _playButton;
 
     bool _activated = false;
 
@@ -102,56 +101,6 @@ namespace ScoreSaber::UI::Other::ScoreSaberLeaderboardView
     {
         if (firstActivation)
         {
-            StandardLevelDetailViewController* _standardLevelDetailViewController = ArrayUtil::First(Resources::FindObjectsOfTypeAll<StandardLevelDetailViewController*>());
-
-            _playButton = _standardLevelDetailViewController->standardLevelDetailView->actionButton;
-            _platformLeaderboardViewController = self;
-            Sprite* globalLeaderboardIcon = self->globalLeaderboardIcon;
-            Sprite* friendsLeaderboardIcon = self->friendsLeaderboardIcon;
-            Sprite* aroundPlayerLeaderboardIcon = self->aroundPlayerLeaderboardIcon;
-            Sprite* countryLeaderboardIcon = Base64ToSprite(country_base64);
-            countryLeaderboardIcon->get_textureRect().set_size({64.0f, 64.0f});
-
-            IconSegmentedControl* scopeSegmentedControl = self->scopeSegmentedControl;
-
-            ::Array<IconSegmentedControl::DataItem*>* array = ::Array<IconSegmentedControl::DataItem*>::New({
-                IconSegmentedControl::DataItem::New_ctor(globalLeaderboardIcon, "Global"),
-                IconSegmentedControl::DataItem::New_ctor(aroundPlayerLeaderboardIcon, "Around You"),
-                IconSegmentedControl::DataItem::New_ctor(friendsLeaderboardIcon, "Friends"),
-                IconSegmentedControl::DataItem::New_ctor(countryLeaderboardIcon, "Country"),
-            });
-
-            scopeSegmentedControl->SetData(array);
-
-            // Page Buttons
-
-            if (!_pageUpButton)
-            {
-                _pageUpButton = QuestUI::BeatSaberUI::CreateUIButton(self->get_transform(), "", "SettingsButton", Vector2(-40.0f, 20.0f), Vector2(5.0f, 5.0f),
-                                                                     [=]() {
-                                                                         DirectionalButtonClicked(PageDirection::Up);
-                                                                     });
-
-                QuestUI::BeatSaberUI::SetButtonSprites(_pageUpButton, Base64ToSprite(carat_up_inactive_base64),
-                                                       Base64ToSprite(carat_up_base64));
-
-                RectTransform* rectTransform = reinterpret_cast<RectTransform*>(_pageUpButton->get_transform()->GetChild(0));
-                rectTransform->set_sizeDelta({10.0f, 10.0f});
-            }
-
-            if (!_pageDownButton)
-            {
-                _pageDownButton = QuestUI::BeatSaberUI::CreateUIButton(self->get_transform(), "", "SettingsButton", Vector2(-40.0f, -20.0f), Vector2(5.0f, 5.0f),
-                                                                       [=]() {
-                                                                           DirectionalButtonClicked(PageDirection::Down);
-                                                                       });
-
-                QuestUI::BeatSaberUI::SetButtonSprites(_pageDownButton, Base64ToSprite(carat_down_inactive_base64),
-                                                       Base64ToSprite(carat_down_base64));
-                RectTransform* rectTransform = reinterpret_cast<RectTransform*>(_pageDownButton->get_transform()->GetChild(0));
-                rectTransform->set_sizeDelta({10.0f, 10.0f});
-            }
-
             // RedBrumbler top panel
 
             ScoreSaberBanner = ::ScoreSaber::UI::Other::Banner::Create(self->get_transform());
@@ -170,22 +119,6 @@ namespace ScoreSaber::UI::Other::ScoreSaberLeaderboardView
             leaderboardScoreInfoButtonHandler->set_buttonCount(0);
 
             _activated = true;
-
-            PlayerService::AuthenticateUser([&](PlayerService::LoginStatus loginStatus) {
-                switch (loginStatus)
-                {
-                    case PlayerService::LoginStatus::Success: {
-                        ScoreSaberBanner->Prompt("<color=#89fc81>Successfully signed in to ScoreSaber</color>", false, 5.0f,
-                                                 nullptr);
-                        _platformLeaderboardViewController->Refresh(true, true);
-                        break;
-                    }
-                    case PlayerService::LoginStatus::Error: {
-                        ScoreSaberBanner->Prompt("<color=#fc8181>Authentication failed</color>", false, 5.0f, nullptr);
-                        break;
-                    }
-                }
-            });
         }
     }
 
@@ -200,89 +133,7 @@ namespace ScoreSaber::UI::Other::ScoreSaberLeaderboardView
                             PlatformLeaderboardsModel::ScoresScope scope, LoadingControl* loadingControl,
                             std::string refreshId)
     {
-        if (ScoreSaber::Services::UploadService::uploading)
-        {
-            return;
-        }
-
-        if (!_activated)
-        {
-            return;
-        }
-
-        SetPlayButtonState(false);
-        leaderboardScoreInfoButtonHandler->set_buttonCount(0);
-
-        if (PlayerService::playerInfo.loginStatus == PlayerService::LoginStatus::Error)
-        {
-            SetErrorState(loadingControl, "ScoreSaber authentication failed, please restart Beat Saber", false);
-            SetPlayButtonState(true);
-            return;
-        }
-
-        if (PlayerService::playerInfo.loginStatus != PlayerService::LoginStatus::Success)
-        {
-            return;
-        }
-
-        _currentLeaderboardRefreshId = refreshId;
-
-        std::thread t([difficultyBeatmap, scope, loadingControl, tableView, refreshId] {
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
-            if (_currentLeaderboardRefreshId == refreshId)
-            {
-                LeaderboardService::GetLeaderboardData(
-                    difficultyBeatmap, scope, _leaderboardPage,
-                    [=](Data::InternalLeaderboard internalLeaderboard) {
-                        QuestUI::MainThreadScheduler::Schedule([=]() {
-                            if (internalLeaderboard.leaderboard.has_value())
-                            {
-                                int playerScoreIndex = GetPlayerScoreIndex(internalLeaderboard.leaderboard.value().scores);
-                                if (internalLeaderboard.leaderboardItems->get_Count() != 0)
-                                {
-                                    if (scope == PlatformLeaderboardsModel::ScoresScope::AroundPlayer && playerScoreIndex == -1)
-                                    {
-                                        SetErrorState(loadingControl, "You haven't set a score on this leaderboard", true);
-                                    }
-                                    else
-                                    {
-                                        tableView->SetScores(internalLeaderboard.leaderboardItems, playerScoreIndex);
-                                        loadingControl->ShowText(System::String::_get_Empty(), false);
-                                        loadingControl->Hide();
-                                        leaderboardScoreInfoButtonHandler->set_scoreCollection(internalLeaderboard.leaderboard.value().scores, internalLeaderboard.leaderboard->leaderboardInfo.id);
-                                        SetPlayButtonState(true);
-                                        SetRankedStatus(internalLeaderboard.leaderboard->leaderboardInfo);
-                                    }
-                                }
-                                else
-                                {
-                                    if (_leaderboardPage > 1)
-                                    {
-                                        SetErrorState(loadingControl, "No scores on this page");
-                                    }
-                                    else
-                                    {
-                                        SetErrorState(loadingControl, "No scores on this leaderboard, be the first!");
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (internalLeaderboard.leaderboardItems->get_Item(0) != nullptr)
-                                {
-                                    SetErrorState(loadingControl, internalLeaderboard.leaderboardItems->get_Item(0)->get_playerName(), false);
-                                }
-                                else
-                                {
-                                    SetErrorState(loadingControl, "No scores on this leaderboard, be the first! 0x1");
-                                }
-                            }
-                        });
-                    },
-                    _filterAroundCountry);
-            }
-        });
-        t.detach();
+        // OFF YOU FUCK STOP CRASHING ME
     }
 
     void SetRankedStatus(Data::LeaderboardInfo leaderboardInfo)
@@ -375,10 +226,7 @@ namespace ScoreSaber::UI::Other::ScoreSaberLeaderboardView
 
     void SetPlayButtonState(bool state)
     {
-        if (_playButton != nullptr)
-        {
-            _playButton->get_gameObject()->set_active(state);
-        }
+        //add pinkcore stuff again
     }
 
     void SetUploadState(bool state, bool success, std::string errorMessage)

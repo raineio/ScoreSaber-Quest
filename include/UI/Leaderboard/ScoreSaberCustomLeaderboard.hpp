@@ -1,16 +1,18 @@
 #pragma once
 
 #include "leaderboardcore/shared/Models/CustomLeaderboard.hpp"
+#include "UI/Leaderboard/ScoreSaberLeaderboardViewController.hpp"
+#include "UI/Leaderboard/ScoreSaberPanel.hpp"
 
 namespace ScoreSaber::UI::Leaderboard
 {
     class CustomLeaderboard final : public LeaderboardCore::Models::CustomLeaderboard
     {
         public:
-            HMUI::ViewController* get_panelViewController() final override;
-            HMUI::ViewController* get_leaderboardViewController() final override;
+            ScoreSaberPanel* get_panelViewController() final override;
+            ScoreSaberLeaderboardViewController* get_leaderboardViewController() final override;
         private:
-            SafePtrUnity<HMUI::ViewController> panelViewController;
-            SafePtrUnity<HMUI::ViewController> leaderboardViewController;
+            SafePtrUnity<ScoreSaberPanel> panelViewController;
+            SafePtrUnity<ScoreSaberLeaderboardViewController> leaderboardViewController;
     };
 }

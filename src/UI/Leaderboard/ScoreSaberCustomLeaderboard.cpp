@@ -6,7 +6,7 @@
 
 namespace ScoreSaber::UI::Leaderboard
 {
-    HMUI::ViewController* CustomLeaderboard::get_panelViewController()
+    ScoreSaberPanel* CustomLeaderboard::get_panelViewController()
     {
         if (!panelViewController)
         {
@@ -15,7 +15,7 @@ namespace ScoreSaber::UI::Leaderboard
         return panelViewController.ptr();
     }
 
-    HMUI::ViewController* CustomLeaderboard::get_leaderboardViewController()
+    ScoreSaberLeaderboardViewController* CustomLeaderboard::get_leaderboardViewController()
     {
         if (!leaderboardViewController)
         {

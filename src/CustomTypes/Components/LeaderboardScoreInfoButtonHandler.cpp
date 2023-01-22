@@ -21,7 +21,7 @@ namespace ScoreSaber::CustomTypes::Components
     {
         buttons = Array<ScoreSaber::CustomTypes::Components::ClickableImage*>::NewLength(10);
         auto infoSprite = Base64ToSprite(info_base64);
-        Vector2 basePosition = {45.0f, 26.17f};
+        Vector2 basePosition = {45.0f, 32.3f};
         for (int i = 0; i < 10; i++)
         {
             auto btn = UIUtils::CreateClickableImage(get_transform(), infoSprite, basePosition, {3.5, 3.5}, std::bind(&LeaderboardScoreInfoButtonHandler::ShowScoreInfoModal, this, i));

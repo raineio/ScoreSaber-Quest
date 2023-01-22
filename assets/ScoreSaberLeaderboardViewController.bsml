@@ -1,10 +1,17 @@
 <bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='https://raw.githubusercontent.com/RedBrumbler/Quest-BSML-Docs/gh-pages/schema.xsd'>
 
   <!-- Leaderboard scrollers -->
-  <bg anchor-pos-x="-40" anchor-pos-y="-20">
-    <page-button on-click="up-button-click" id="up-button" dir="Up" anchor-pos-y="17" interactable="false" />
-    <page-button on-click="down-button-click" id="down-button" dir="Down" anchor-pos-y="-20" />
+  <bg anchor-pos-x="-40" anchor-pos-y="-15">
+    <page-button icon="ScoreSaber_carat_png" on-click="up-button-click" id="up-button" dir="Up" anchor-pos-y="20" pref-width="10" pref-height="10"/>
+    <vertical-icon-segments id="scopeSegmentedControl" contents='~leaderboardIcons' select-cell='OnIconSelected' anchor-pos-y="20" />
+    <page-button icon="ScoreSaber_carat_png" on-click="down-button-click" id="down-button" dir="Down" anchor-pos-y="-20" pref-width="10" pref-height="10"/>
   </bg>
+
+  <vertical horizontal-fit='PreferredSize' vertical-fit='PreferredSize' pref-width='76' pref-height='60' anchor-pos-x="7" anchor-pos-y="5.5">
+    <leaderboard id='leaderboardTableView' cell-size='6.05'>
+      <loading-indicator id="leaderboard_loading" active="false" preserve-aspect="true" pref-width="15" pref-height="15" />
+    </leaderboard>
+  </vertical>
 
 
   <button-with-icon icon="ScoreSaber.Resources.replay.png" id="buttonPPv3Replay" active="false" on-click="PPv3-replay-click" hover-hint="Watch PPv3 Replay" pref-width="15" pref-height="13" anchor-max-x=".5" anchor-max-y=".5" anchor-min-x=".5" anchor-min-y=".5" anchor-pos-x="17" anchor-pos-y="36"/>
@@ -23,7 +30,7 @@
   </macro.as-host>
 
   <!-- Score info modal -->
-  <modal id="detail-modal-root" show-event="present-score-info" clickerino-offerino-closerino="true" hide-event="close-modals" size-delta-x="55" size-delta-y="50">
+  <modal id="detail-modal-root" clickerino-offerino-closerino="true" size-delta-x="55" size-delta-y="50">
     <macro.as-host host="score-detail-view">
       <vertical pref-width="55" pad="3" vertical-fit="PreferredSize" spacing="0.8">
         <horizontal pref-width="50" horizontal-fit="PreferredSize" vertical-fit="PreferredSize">
@@ -55,6 +62,6 @@
   </modal>
 
   <!-- Profile modal -->
-  <ss-profile id="profile-detail-view" show-event="show-profile" loading="false" />
+  <!-- <ss-profile id="profile-detail-view" show-event="show-profile" loading="false" /> -->
 
 </bg>
