@@ -24,9 +24,11 @@ DECLARE_CLASS_CODEGEN(ScoreSaber::UI::Leaderboard, ScoreSaberPanel, HMUI::ViewCo
     DECLARE_INSTANCE_FIELD(UnityEngine::GameObject*, prompt_loader);
     DECLARE_INSTANCE_METHOD(void, OnLogoClick);
     DECLARE_INSTANCE_METHOD(void, OnRankTextClick);
+    DECLARE_INSTANCE_METHOD(void, OnRankedStatusClick);
     DECLARE_INSTANCE_FIELD(ScoreSaber::UI::Other::PlayerProfileModal*, playerProfileModal);
 
     public:
+        int scoreboardId;
         void set_ranking(int rank, float pp);
         void set_status(std::string_view status, int scoreboardId);
         void Prompt(std::string status, bool loadingIndicator, float dismiss, std::function<void()> callback);

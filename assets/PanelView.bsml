@@ -12,7 +12,7 @@
     </vertical>
     <vertical active="true" pref-width="70" pref-height="10" spacing="-1">
       <clickable-text id="global_rank_text" text="~global_leaderboard_ranking" on-click="OnRankTextClick" font-size="3.5" overflow-mode="Ellipsis" italics="true" align="Left" />
-      <clickable-text id="leaderboard_ranked_text" text="~leaderboard_ranked_status" on-click="clicked-status" font-size="3.5" overflow-mode="Ellipsis" italics="true" align="Left" hover-hint="Opens in browser" />
+      <clickable-text id="leaderboard_ranked_text" text="~leaderboard_ranked_status" on-click="OnRankedStatusClick" font-size="3.5" overflow-mode="Ellipsis" italics="true" align="Left" hover-hint="Opens in browser" />
     </vertical>
     <horizontal active="~is-loading" pref-width="70" pref-height="10">
       <vertical pref-width="10" pref-height="10">

@@ -2,9 +2,9 @@
 
   <!-- Leaderboard scrollers -->
   <bg anchor-pos-x="-40" anchor-pos-y="-15">
-    <page-button icon="ScoreSaber_carat_png" on-click="up-button-click" id="up-button" dir="Up" anchor-pos-y="20" pref-width="10" pref-height="10"/>
+    <page-button icon="ScoreSaber_carat_png" on-click="OnPageUp" id="up_button" dir="Up" anchor-pos-y="18" pref-width="10" pref-height="10"/>
     <vertical-icon-segments id="scopeSegmentedControl" contents='~leaderboardIcons' select-cell='OnIconSelected' anchor-pos-y="20" />
-    <page-button icon="ScoreSaber_carat_png" on-click="down-button-click" id="down-button" dir="Down" anchor-pos-y="-20" pref-width="10" pref-height="10"/>
+    <page-button icon="ScoreSaber_carat_png" on-click="OnPageDown" id="down_button" dir="Down" anchor-pos-y="-18" pref-width="10" pref-height="10"/>
   </bg>
 
   <vertical horizontal-fit='PreferredSize' vertical-fit='PreferredSize' pref-width='76' pref-height='60' anchor-pos-x="7" anchor-pos-y="5.5">
