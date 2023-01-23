@@ -14,8 +14,13 @@
 #include "questui/shared/CustomTypes/Components/MainThreadScheduler.hpp"
 #include <functional>
 #include "System/Guid.hpp"
+#include "bsml/shared/BSML/Components/ButtonIconImage.hpp"
+#include "Polyglot/LocalizedTextMeshProUGUI.hpp"
+#include "pinkcore/shared/RequirementAPI.hpp"
 
 DEFINE_TYPE(ScoreSaber::UI::Leaderboard, ScoreSaberLeaderboardViewController);
+
+extern ModInfo modInfo;
 
 extern ScoreSaber::UI::Leaderboard::CustomLeaderboard leaderboard;
 extern IDifficultyBeatmap* currentDifficultyBeatmap;
@@ -24,6 +29,7 @@ int _lastCell = 0;
 int _leaderboardPage = 1;
 bool _filterAroundCountry = false;
 std::string _currentLeaderboardRefreshId;
+int _lastScopeIndex = 0;
 
 using namespace QuestUI;
 using namespace QuestUI::BeatSaberUI;
@@ -38,10 +44,6 @@ using namespace GlobalNamespace;
 namespace ScoreSaber::UI::Leaderboard
 {
 
-    void ScoreSaberLeaderboardViewController::OnIconSelected(IconSegmentedControl* segmentedControl, int index){
-        getLogger().info("I'm pogging my pants at index %i", index);
-    }
-
     void ScoreSaberLeaderboardViewController::PostParse(){
         Array<IconSegmentedControl::DataItem*>* array = ::Array<IconSegmentedControl::DataItem*>::New({
             IconSegmentedControl::DataItem::New_ctor(LoadSpriteRaw(IncludedAssets::Global_png), "Global"),
@@ -50,6 +52,7 @@ namespace ScoreSaber::UI::Leaderboard
             IconSegmentedControl::DataItem::New_ctor(LoadSpriteRaw(IncludedAssets::country_png), "Country"),
         });
         scopeSegmentedControl->SetData(array);
+        CreateLoadingControl();
     }
 
     void ScoreSaberLeaderboardViewController::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
@@ -86,9 +89,27 @@ namespace ScoreSaber::UI::Leaderboard
                     }
                 }
                 QuestUI::MainThreadScheduler::Schedule([]() {
+                    leaderboard.get_leaderboardViewController()->CheckPage();
                     leaderboard.get_leaderboardViewController()->onLeaderboardSet(currentDifficultyBeatmap);
                 });
             });
+        }
+    }
+
+    void ScoreSaberLeaderboardViewController::CheckPage()
+    {
+        auto* btn = up_button->get_transform()->GetComponentInChildren<UnityEngine::UI::Button*>();
+        if (_leaderboardPage > 1) btn->set_interactable(true);
+        else btn->set_interactable(false);
+    }
+
+    void ScoreSaberLeaderboardViewController::ChangeScope()
+    {
+        if (this->isActivated)
+        {
+            _leaderboardPage = 1;
+            onLeaderboardSet(currentDifficultyBeatmap);
+            CheckPage();
         }
     }
 
@@ -106,13 +127,14 @@ namespace ScoreSaber::UI::Leaderboard
 
     void SetPlayButtonState(bool state)
     {
-        //add pinkcore stuff again
+        return state ? PinkCore::RequirementAPI::EnablePlayButton(modInfo) : PinkCore::RequirementAPI::DisablePlayButton(modInfo);
     }
 
-    void SetErrorState(LoadingControl* loadingControl, std::string errorText, bool showRefreshButton = true)
+    void SetErrorState(LoadingControl* loadingControl, std::string errorText, bool showRefreshButton = false)
     {
-        // loadingControl->Hide();
-        // loadingControl->ShowText(errorText, showRefreshButton);
+        loadingControl->Hide();
+        loadingControl->ShowText("literallyunalivemenow", false);
+        loadingControl->ShowText(errorText, showRefreshButton);
         SetPlayButtonState(true);
     }
 
@@ -145,10 +167,34 @@ namespace ScoreSaber::UI::Leaderboard
         leaderboard.get_panelViewController()->set_status("Unranked", leaderboardInfo.id);
     }
 
+    void LoadingControl_ShowLoading(LoadingControl* loadingControl){
+        loadingControl->get_gameObject()->set_active(true);
+        loadingControl->loadingContainer->SetActive(true);
+        loadingControl->refreshContainer->SetActive(false);
+        loadingControl->refreshText->SetText("");
+    }
+
+    void ScoreSaberLeaderboardViewController::OnIconSelected(IconSegmentedControl* segmentedControl, int index){
+        _lastScopeIndex = index;
+        ChangeScope();
+    }
+
+    void ScoreSaberLeaderboardViewController::OnPageUp(){
+        _leaderboardPage--;
+        onLeaderboardSet(currentDifficultyBeatmap);
+        CheckPage();
+    }
+
+    void ScoreSaberLeaderboardViewController::OnPageDown(){
+        _leaderboardPage++;
+        onLeaderboardSet(currentDifficultyBeatmap);
+        CheckPage();
+    }
+
     void ScoreSaberLeaderboardViewController::onLeaderboardSet(IDifficultyBeatmap* difficultyBeatmap){
         auto* view = leaderboardTableView->get_transform()->GetComponentInChildren<LeaderboardTableView*>();
-;
-        this->RefreshLeaderboard(difficultyBeatmap, view, 0, nullptr, System::Guid::NewGuid().ToString());
+        auto* loadingControl = leaderboardTableView->GetComponent<LoadingControl*>();
+        this->RefreshLeaderboard(difficultyBeatmap, view, _lastScopeIndex, loadingControl, System::Guid::NewGuid().ToString());
     }
 
     void ScoreSaberLeaderboardViewController::RefreshLeaderboard(IDifficultyBeatmap* difficultyBeatmap, LeaderboardTableView* tableView,
@@ -158,7 +204,7 @@ namespace ScoreSaber::UI::Leaderboard
 
         if (!this->isActivated) return;
         tableView->tableView->SetDataSource(nullptr, true);
-        leaderboard_loading->SetActive(true);
+        LoadingControl_ShowLoading(loadingControl);
         SetPlayButtonState(false);
         leaderboardScoreInfoButtonHandler->set_buttonCount(0);
 
@@ -185,50 +231,86 @@ namespace ScoreSaber::UI::Leaderboard
                             {
                                 int playerScoreIndex = GetPlayerScoreIndex(internalLeaderboard.leaderboard.value().scores);
                                 if (internalLeaderboard.leaderboardItems->get_Count() != 0)
-                                {
-                                    if (scope == PlatformLeaderboardsModel::ScoresScope::AroundPlayer && playerScoreIndex == -1)
-                                    {
-                                        SetErrorState(loadingControl, "You haven't set a score on this leaderboard", true);
-                                    }
-                                    else
-                                    {
-                                        tableView->SetScores(internalLeaderboard.leaderboardItems, playerScoreIndex);
-                                        // loadingControl->ShowText(System::String::_get_Empty(), false);
-                                        // loadingControl->Hide();
-                                        leaderboard_loading->set_active(false);
-                                        leaderboardScoreInfoButtonHandler->set_scoreCollection(internalLeaderboard.leaderboard.value().scores, internalLeaderboard.leaderboard->leaderboardInfo.id);
-                                        SetPlayButtonState(true);
-                                        SetRankedStatus(internalLeaderboard.leaderboard->leaderboardInfo);
-                                    }
+                                {                          
+                                    tableView->SetScores(internalLeaderboard.leaderboardItems, playerScoreIndex);
+                                    loadingControl->ShowText(System::String::_get_Empty(), false);
+                                    leaderboardScoreInfoButtonHandler->set_scoreCollection(internalLeaderboard.leaderboard.value().scores, internalLeaderboard.leaderboard->leaderboardInfo.id);
+                                    SetPlayButtonState(true);
+                                    SetRankedStatus(internalLeaderboard.leaderboard->leaderboardInfo);
                                 }
-                                else
-                                {
-                                    if (_leaderboardPage > 1)
-                                    {
-                                        SetErrorState(loadingControl, "No scores on this page");
-                                    }
-                                    else
-                                    {
-                                        SetErrorState(loadingControl, "No scores on this leaderboard, be the first!");
-                                    }
-                                }
+                            }
+                            else if (internalLeaderboard.leaderboardItems->size > 0)
+                            {
+                                SetErrorState(loadingControl, internalLeaderboard.leaderboardItems->items.get(0)->playerName);
+                            }
+                            else if (scope == PlatformLeaderboardsModel::ScoresScope::AroundPlayer)
+                            {
+                                SetErrorState(loadingControl, "You haven't set a score on this leaderboard");
+                            }
+                            else if (scope == PlatformLeaderboardsModel::ScoresScope::Friends)
+                            {
+                                SetErrorState(loadingControl, "You have no friends lmao");
+                            }
+                            else if (_leaderboardPage > 1)
+                            {
+                                SetErrorState(loadingControl, "No scores on this page");
                             }
                             else
                             {
-                                if (internalLeaderboard.leaderboardItems->get_Item(0) != nullptr)
-                                {
-                                    SetErrorState(loadingControl, internalLeaderboard.leaderboardItems->get_Item(0)->get_playerName(), false);
-                                }
-                                else
-                                {
-                                    SetErrorState(loadingControl, "No scores on this leaderboard, be the first! 0x1");
-                                }
+                                SetErrorState(loadingControl, "No scores on this leaderboard, be the first!");
                             }
                         });
-                    },
-                    _filterAroundCountry);
+                    }
+                );
             }
         });
         t.detach();
+    }
+
+    void ScoreSaberLeaderboardViewController::SetUploadState(bool state, bool success, std::string errorMessage)
+    {
+        QuestUI::MainThreadScheduler::Schedule([=]() {
+            
+            if (state)
+            {
+                LoadingControl_ShowLoading(leaderboardTableView->GetComponent<LoadingControl*>());
+                leaderboard.get_panelViewController()->set_loading(true);
+                leaderboard.get_panelViewController()->set_prompt("Uploading score...", -1);
+                // ScoreSaberBanner->Prompt("Uploading Score", true, 5.0f, nullptr);
+            }
+            else
+            {
+                leaderboardTableView->GetComponent<LoadingControl*>()->refreshText->SetText("");
+                onLeaderboardSet(currentDifficultyBeatmap);
+
+                if (success)
+                {
+                    leaderboard.get_panelViewController()->set_prompt("<color=#89fc81>Score uploaded successfully</color>", 5);
+                    PlayerService::UpdatePlayerInfo(true);
+                }
+                else
+                {
+                    leaderboard.get_panelViewController()->set_prompt(errorMessage, 5);
+                }
+            }
+        });
+    }
+
+    void ScoreSaberLeaderboardViewController::CreateLoadingControl(){
+        Object::Destroy(leaderboardTableView->GetComponent<LoadingControl*>());
+        auto* loadingTemplate = UnityEngine::Resources::FindObjectsOfTypeAll<PlatformLeaderboardViewController*>()
+            .FirstOrDefault()->get_transform()->Find("Container/LeaderboardTableView/LoadingControl")->GetComponentInChildren<LoadingControl*>();
+        leaderboardTableView->AddComponent<LoadingControl*>()->Instantiate(loadingTemplate, leaderboardTableView->get_transform(), false);
+        auto* loadingControl = leaderboardTableView->GetComponent<LoadingControl*>();
+        Object::Destroy(loadingControl->get_transform()->GetComponentInChildren<TMPro::TextMeshProUGUI*>());
+        loadingControl->loadingContainer = leaderboard_loading;
+        loadingControl->downloadingContainer = leaderboard_loading;
+        loadingControl->refreshContainer = Object::Instantiate(loadingTemplate->refreshContainer, leaderboardTableView->get_transform(), false);
+        loadingControl->refreshContainer->get_transform()->set_localPosition(leaderboard_loading->get_transform()->get_localPosition());
+        loadingControl->refreshText = loadingControl->get_transform()->GetComponentsInChildren<TMPro::TextMeshProUGUI*>().get(1);
+        loadingControl->refreshButton = Object::Instantiate(loadingTemplate->refreshButton, leaderboardTableView->get_transform(), false);
+        loadingControl->refreshButton->get_gameObject()->SetActive(false);
+        loadingControl->refreshContainer->SetActive(false);
+        GameObject::Destroy(loadingControl->refreshText->GetComponent<Polyglot::LocalizedTextMeshProUGUI*>());
     }
 }

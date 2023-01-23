@@ -29,6 +29,7 @@
 #include "static.hpp"
 #include <chrono>
 #include <thread>
+#include "UI/Leaderboard/ScoreSaberCustomLeaderboard.hpp"
 
 using namespace StringUtils;
 
@@ -37,6 +38,9 @@ using namespace ScoreSaber::Data::Private;
 using namespace ScoreSaber::Static;
 using namespace ScoreSaber::ReplaySystem;
 using namespace ScoreSaber::Data::Private;
+
+extern ScoreSaber::UI::Leaderboard::CustomLeaderboard leaderboard;
+
 
 namespace ScoreSaber::Services::UploadService
 {
@@ -100,7 +104,7 @@ namespace ScoreSaber::Services::UploadService
     void Seven(IDifficultyBeatmap* beatmap, int modifiedScore, std::string uploadPacket, std::string replayFileName)
     {
         std::thread t([beatmap, modifiedScore, uploadPacket, replayFileName] {
-            ScoreSaber::UI::Other::ScoreSaberLeaderboardView::SetUploadState(true, false);
+            leaderboard.get_leaderboardViewController()->SetUploadState(true, false);
 
             LeaderboardService::GetLeaderboardData(
                 beatmap, PlatformLeaderboardsModel::ScoresScope::Global, 1, [=](Data::InternalLeaderboard internalLeaderboard) {
@@ -113,7 +117,7 @@ namespace ScoreSaber::Services::UploadService
                             if (modifiedScore < internalLeaderboard.leaderboard.value().leaderboardInfo.playerScore.value().modifiedScore)
                             {
                                 //  ERROR("Didn't beat score not uploading");
-                                ScoreSaber::UI::Other::ScoreSaberLeaderboardView::SetUploadState(false, false, "<color=#fc8181>Didn't beat score, not uploading</color>");
+                                leaderboard.get_leaderboardViewController()->SetUploadState(false, false, "<color=#fc8181>Didn't beat score, not uploading</color>");
                                 uploading = false;
                                 return;
                             }
@@ -134,7 +138,7 @@ namespace ScoreSaber::Services::UploadService
                     if (containsV3Stuff)
                     {
                         // ERROR("Beatmap contains V3 stuff, not uploading");
-                        ScoreSaber::UI::Other::ScoreSaberLeaderboardView::SetUploadState(false, false, "<color=#fc8181>New note type not supported, not uploading</color>");
+                        leaderboard.get_leaderboardViewController()->SetUploadState(false, false, "<color=#fc8181>New note type not supported, not uploading</color>");
                         uploading = false;
                         return;
                     }
@@ -184,19 +188,19 @@ namespace ScoreSaber::Services::UploadService
                         // Save local replay
                         // INFO("Score uploaded");
                         SaveReplay(ReplayService::CurrentSerializedReplay, replayFileName);
-                        ScoreSaber::UI::Other::ScoreSaberLeaderboardView::SetUploadState(false, true);
+                        leaderboard.get_leaderboardViewController()->SetUploadState(false, true);
                     }
 
                     if (failed)
                     {
                         // ERROR("Failed to upload score");
-                        ScoreSaber::UI::Other::ScoreSaberLeaderboardView::SetUploadState(false, false);
+                        leaderboard.get_leaderboardViewController()->SetUploadState(false, false);
                         // Failed to upload score, tell user
                     }
 
                     uploading = false;
-                },
-                false);
+                }
+            );
         });
         t.detach();
     }

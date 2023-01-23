@@ -15,6 +15,7 @@
 #include "bsml/shared/Helpers/getters.hpp"
 #include "bsml/shared/Helpers/creation.hpp"
 #include "Services/PlayerService.hpp"
+#include "UnityEngine/Application.hpp"
 
 DEFINE_TYPE(ScoreSaber::UI::Leaderboard, ScoreSaberPanel);
 
@@ -26,7 +27,7 @@ namespace ScoreSaber::UI::Leaderboard
     void ScoreSaberPanel::set_status(std::string_view status, int scoreboardId)
     {
         leaderboard_ranked_text->SetText(string_format("<b><color=#FFDE1A>Ranked Status:</color></b> %s", status.data()));
-        // this->scoreboardId = scoreboardId;
+        this->scoreboardId = scoreboardId;
         set_loading(false);
     }
 
@@ -146,5 +147,10 @@ namespace ScoreSaber::UI::Leaderboard
         {
             playerProfileModal->Show(ScoreSaber::Services::PlayerService::playerInfo.localPlayerData.id);
         }
+    }
+
+    void ScoreSaberPanel::OnRankedStatusClick(){
+        auto songURL = string_format("https://scoresaber.com/leaderboard/%d", scoreboardId);
+        Application::OpenURL(songURL);
     }
 }
