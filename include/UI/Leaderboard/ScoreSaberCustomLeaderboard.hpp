@@ -11,6 +11,7 @@ namespace ScoreSaber::UI::Leaderboard
         public:
             ScoreSaberPanel* get_panelViewController() final override;
             ScoreSaberLeaderboardViewController* get_leaderboardViewController() final override;
+            void deleteControllers();
         private:
             SafePtrUnity<ScoreSaberPanel> panelViewController;
             SafePtrUnity<ScoreSaberLeaderboardViewController> leaderboardViewController;

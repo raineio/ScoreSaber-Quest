@@ -26,15 +26,20 @@ DECLARE_CLASS_CODEGEN(ScoreSaber::UI::Leaderboard, ScoreSaberPanel, HMUI::ViewCo
     DECLARE_INSTANCE_METHOD(void, OnRankTextClick);
     DECLARE_INSTANCE_METHOD(void, OnRankedStatusClick);
     DECLARE_INSTANCE_FIELD(ScoreSaber::UI::Other::PlayerProfileModal*, playerProfileModal);
+    DECLARE_INSTANCE_METHOD(void, Update);
 
     public:
         int scoreboardId;
         void set_ranking(int rank, float pp);
+        void set_color(UnityEngine::Color color);
         void set_status(std::string_view status, int scoreboardId);
         void Prompt(std::string status, bool loadingIndicator, float dismiss, std::function<void()> callback);
         void set_prompt(std::string text, int dismissTime);
         custom_types::Helpers::Coroutine SetPrompt(std::string status, bool showIndicator, float dismiss, std::function<void()> callback);
         void set_loading(bool value);
     private:
+        bool rainbow = false;
+        bool wasRainbow = false;
+        float colorAngle = 0.0f;
         static constexpr const UnityEngine::Color defaultColor = {0, 0.47, 0.72, 1.0};
 )

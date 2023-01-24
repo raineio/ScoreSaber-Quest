@@ -221,48 +221,47 @@ namespace ScoreSaber::UI::Leaderboard
 
         std::thread t([difficultyBeatmap, scope, loadingControl, tableView, refreshId, this] {
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
-            if (_currentLeaderboardRefreshId == refreshId)
-            {
-                LeaderboardService::GetLeaderboardData(
-                    difficultyBeatmap, scope, _leaderboardPage,
-                    [=](ScoreSaber::Data::InternalLeaderboard internalLeaderboard) {
-                        QuestUI::MainThreadScheduler::Schedule([=]() {
-                            if (internalLeaderboard.leaderboard.has_value())
-                            {
-                                int playerScoreIndex = GetPlayerScoreIndex(internalLeaderboard.leaderboard.value().scores);
-                                if (internalLeaderboard.leaderboardItems->get_Count() != 0)
-                                {                          
-                                    tableView->SetScores(internalLeaderboard.leaderboardItems, playerScoreIndex);
-                                    loadingControl->ShowText(System::String::_get_Empty(), false);
-                                    leaderboardScoreInfoButtonHandler->set_scoreCollection(internalLeaderboard.leaderboard.value().scores, internalLeaderboard.leaderboard->leaderboardInfo.id);
-                                    SetPlayButtonState(true);
-                                    SetRankedStatus(internalLeaderboard.leaderboard->leaderboardInfo);
-                                }
+            if (_currentLeaderboardRefreshId != refreshId) return;
+            LeaderboardService::GetLeaderboardData(difficultyBeatmap, scope, _leaderboardPage,
+                [=](ScoreSaber::Data::InternalLeaderboard internalLeaderboard) {
+                    QuestUI::MainThreadScheduler::Schedule([=]() {
+                        if (_currentLeaderboardRefreshId != refreshId) return;
+                        if (internalLeaderboard.leaderboard.has_value())
+                        {
+                            int playerScoreIndex = GetPlayerScoreIndex(internalLeaderboard.leaderboard.value().scores);
+                            if (internalLeaderboard.leaderboardItems->get_Count() != 0)
+                            {                          
+                                tableView->SetScores(internalLeaderboard.leaderboardItems, playerScoreIndex);
+                                loadingControl->ShowText(System::String::_get_Empty(), false);
+                                leaderboardScoreInfoButtonHandler->set_scoreCollection(internalLeaderboard.leaderboard.value().scores, internalLeaderboard.leaderboard->leaderboardInfo.id);
+                                SetPlayButtonState(true);
+                                SetRankedStatus(internalLeaderboard.leaderboard->leaderboardInfo);
                             }
-                            else if (internalLeaderboard.leaderboardItems->size > 0)
-                            {
-                                SetErrorState(loadingControl, internalLeaderboard.leaderboardItems->items.get(0)->playerName);
-                            }
-                            else if (scope == PlatformLeaderboardsModel::ScoresScope::AroundPlayer)
-                            {
-                                SetErrorState(loadingControl, "You haven't set a score on this leaderboard");
-                            }
-                            else if (scope == PlatformLeaderboardsModel::ScoresScope::Friends)
-                            {
-                                SetErrorState(loadingControl, "You have no friends lmao");
-                            }
-                            else if (_leaderboardPage > 1)
-                            {
-                                SetErrorState(loadingControl, "No scores on this page");
-                            }
-                            else
-                            {
-                                SetErrorState(loadingControl, "No scores on this leaderboard, be the first!");
-                            }
-                        });
-                    }
-                );
-            }
+                        }
+                        else if (internalLeaderboard.leaderboardItems->size > 0)
+                        {
+                            SetErrorState(loadingControl, internalLeaderboard.leaderboardItems->items.get(0)->playerName);
+                        }
+                        else if (scope == PlatformLeaderboardsModel::ScoresScope::AroundPlayer)
+                        {
+                            SetErrorState(loadingControl, "You haven't set a score on this leaderboard");
+                        }
+                        else if (scope == PlatformLeaderboardsModel::ScoresScope::Friends)
+                        {
+                            SetErrorState(loadingControl, "You have no friends lmao");
+                        }
+                        else if (_leaderboardPage > 1)
+                        {
+                            SetErrorState(loadingControl, "No scores on this page");
+                        }
+                        else
+                        {
+                            SetErrorState(loadingControl, "No scores on this leaderboard, be the first!");
+                        }
+                    });
+                }
+            );
+            
         });
         t.detach();
     }

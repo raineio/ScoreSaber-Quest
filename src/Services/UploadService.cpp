@@ -18,7 +18,6 @@
 #include "Services/LeaderboardService.hpp"
 #include "Services/PlayerService.hpp"
 #include "Services/ReplayService.hpp"
-#include "UI/Other/ScoreSaberLeaderboardView.hpp"
 #include "UnityEngine/Application.hpp"
 #include "UnityEngine/Resources.hpp"
 #include "Utils/BeatmapUtils.hpp"
@@ -71,6 +70,7 @@ namespace ScoreSaber::Services::UploadService
 
     void Five(StringW gameMode, GlobalNamespace::IDifficultyBeatmap* difficultyBeatmap, GlobalNamespace::LevelCompletionResults* levelCompletionResults, bool practicing)
     {
+        // return leaderboard.get_leaderboardViewController()->SetUploadState(false, false, "<color=#fc8181>not uploading scores on a test version silly</color>");
 
         if (StringUtils::GetEnv("disable_ss_upload") == "1")
         {

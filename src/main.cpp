@@ -16,7 +16,6 @@
 #include "ReplaySystem/Installers/PlaybackInstaller.hpp"
 #include "ReplaySystem/Installers/RecordInstaller.hpp"
 #include "Services/FileService.hpp"
-#include "UI/Other/Banner.hpp"
 #include "Utils/TeamUtils.hpp"
 #include "bsml/shared/BSML.hpp"
 #include "bsml/shared/BSMLDataCache.hpp"

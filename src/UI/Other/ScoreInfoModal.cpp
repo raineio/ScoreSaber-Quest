@@ -15,7 +15,6 @@
 #include "System/Int32.hpp"
 #include "System/String.hpp"
 #include "System/TimeSpan.hpp"
-#include "UI/Other/ScoreSaberLeaderboardView.hpp"
 #include "UnityEngine/RectOffset.hpp"
 #include "UnityEngine/Resources.hpp"
 #include "UnityEngine/Sprite.hpp"
