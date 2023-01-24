@@ -13,7 +13,6 @@
 #include "ReplaySystem/Installers/MainInstaller.hpp"
 #include "ReplaySystem/Installers/PlaybackInstaller.hpp"
 #include "Services/FileService.hpp"
-#include "UI/Other/Banner.hpp"
 #include "Utils/TeamUtils.hpp"
 #include "bsml/shared/BSMLDataCache.hpp"
 #include "lapiz/shared/zenject/Zenjector.hpp"
@@ -57,8 +56,6 @@ extern "C" __attribute((visibility("default"))) void setup(ModInfo& info)
 extern "C" __attribute((visibility("default"))) void load()
 {
     il2cpp_functions::Init();
-    // il2cpp_functions::Class_Init(classof(HMUI::ImageView*));
-    // il2cpp_functions::Class_Init(classof(HMUI::CurvedTextMeshPro*));
     QuestUI::Init();
     LeaderboardCore::Register::RegisterLeaderboard(&leaderboard, modInfo);
     custom_types::Register::AutoRegister();

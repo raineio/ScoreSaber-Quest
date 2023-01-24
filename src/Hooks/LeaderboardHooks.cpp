@@ -1,8 +1,6 @@
 #include "Sprites.hpp"
 #include "hooks.hpp"
 
-#include "UI/Other/ScoreSaberLeaderboardView.hpp"
-
 // LeaderboardScoreUploader
 
 #include "Data/Private/ReplayFile.hpp"
@@ -36,6 +34,7 @@
 #include "GlobalNamespace/MenuTransitionsHelper.hpp"
 
 #include "logging.hpp"
+#include "UI/Leaderboard/ScoreSaberCustomLeaderboard.hpp"
 
 using namespace HMUI;
 using namespace UnityEngine;
@@ -46,11 +45,13 @@ using namespace ScoreSaber::UI::Other;
 using namespace ScoreSaber::ReplaySystem;
 using namespace ScoreSaber::Data::Private;
 
+extern ScoreSaber::UI::Leaderboard::CustomLeaderboard leaderboard;
+
 // Soft restart
 MAKE_AUTO_HOOK_MATCH(MenuTransitionsHelper_RestartGame, &GlobalNamespace::MenuTransitionsHelper::RestartGame, void, GlobalNamespace::MenuTransitionsHelper* self, System::Action_1<Zenject::DiContainer*>* finishCallback)
 {
     BeatmapUtils::playerDataModel = nullptr;
-    ScoreSaber::UI::Other::ScoreSaberLeaderboardView::DidDeactivate();
+    leaderboard.deleteControllers(); // this does not work rip
     MenuTransitionsHelper_RestartGame(self, finishCallback);
 }
 

@@ -16,13 +16,20 @@
 #include "bsml/shared/Helpers/creation.hpp"
 #include "Services/PlayerService.hpp"
 #include "UnityEngine/Application.hpp"
+#include "UnityEngine/Time.hpp"
+#include "main.hpp"
 
 DEFINE_TYPE(ScoreSaber::UI::Leaderboard, ScoreSaberPanel);
 
 using namespace UnityEngine;
 
+HMUI::ImageView* bgImage;
+
 namespace ScoreSaber::UI::Leaderboard
 {
+    void ScoreSaberPanel::set_color(UnityEngine::Color color){
+        bgImage->set_color(color);
+    }
 
     void ScoreSaberPanel::set_status(std::string_view status, int scoreboardId)
     {
@@ -38,11 +45,13 @@ namespace ScoreSaber::UI::Leaderboard
     }
 
     void ScoreSaberPanel::PostParse(){
-        HMUI::ImageView* bgImage = container->GetComponent<BSML::Backgroundable*>()->background;
+        bgImage = container->GetComponent<BSML::Backgroundable*>()->background;
         bgImage->skew = 0.18f;
         bgImage->gradient = true;
         scoresaber_logo->skew = 0.18f;
         separator->skew = 0.18f;
+
+        // rainbow=true;
         
         // currently just here for POC
         set_ranking(1, 1234567890.0f);
@@ -152,5 +161,25 @@ namespace ScoreSaber::UI::Leaderboard
     void ScoreSaberPanel::OnRankedStatusClick(){
         auto songURL = string_format("https://scoresaber.com/leaderboard/%d", scoreboardId);
         Application::OpenURL(songURL);
+    }
+
+    void ScoreSaberPanel::Update()
+    {
+        // if we are not going to be rainbow, and we were just rainbow
+        if (!rainbow && wasRainbow)
+        {
+            // set bg color to default
+            wasRainbow = false;
+            set_color(defaultColor);
+        }
+        else if (rainbow)
+        {
+            wasRainbow = true;
+            // make this color dependent on some kind of rainbow / gradient source
+            colorAngle += UnityEngine::Time::get_deltaTime() * 0.1f;
+            colorAngle = std::fmod(colorAngle, 1.0f);
+            UnityEngine::Color color = UnityEngine::Color::HSVToRGB(colorAngle, 1.0f, 1.0f);
+            set_color(color);
+        }
     }
 }
