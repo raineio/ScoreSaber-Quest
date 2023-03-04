@@ -56,6 +56,12 @@ extern "C" __attribute((visibility("default"))) void setup(ModInfo& info)
     getLogger().info("Completed setup!");
 }
 
+void onLeaderboardSet(GlobalNamespace::IDifficultyBeatmap* difficultyBeatmap){
+    currentDifficultyBeatmap = difficultyBeatmap;
+    auto vc = leaderboard.get_leaderboardViewController();
+    if (vc && vc->isActivated) vc->onLeaderboardSet(difficultyBeatmap);
+}
+
 // Called later on in the game loading - a good time to install function hooks
 extern "C" __attribute((visibility("default"))) void load()
 {
@@ -77,11 +83,7 @@ extern "C" __attribute((visibility("default"))) void load()
     zenjector->Install<ScoreSaber::ReplaySystem::Installers::RecordInstaller*, GlobalNamespace::StandardGameplayInstaller*>();
     zenjector->Install<ScoreSaber::ReplaySystem::Installers::RecordInstaller*, GlobalNamespace::MultiplayerLocalActivePlayerInstaller*>();
 
-    LeaderboardCore::Events::NotifyLeaderboardSet() += [](GlobalNamespace::IDifficultyBeatmap* difficultyBeatmap){
-        currentDifficultyBeatmap = difficultyBeatmap;
-        auto vc = leaderboard.get_leaderboardViewController();
-        if (vc && vc->isActivated) vc->onLeaderboardSet(difficultyBeatmap);
-    };
+    LeaderboardCore::Events::NotifyLeaderboardSet() += onLeaderboardSet;
 }
 
 BSML_DATACACHE(replay_png) {
