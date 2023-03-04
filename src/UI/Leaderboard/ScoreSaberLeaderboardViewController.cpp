@@ -57,6 +57,7 @@ namespace ScoreSaber::UI::Leaderboard
 
     void ScoreSaberLeaderboardViewController::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
     {
+        getLogger().info("woo activated pog champing");
         if (firstActivation)
         {
 
@@ -94,6 +95,10 @@ namespace ScoreSaber::UI::Leaderboard
                 });
             });
         }
+        else{
+            leaderboard.get_leaderboardViewController()->CheckPage();
+            leaderboard.get_leaderboardViewController()->onLeaderboardSet(currentDifficultyBeatmap);
+        }
     }
 
     void ScoreSaberLeaderboardViewController::CheckPage()
@@ -127,7 +132,18 @@ namespace ScoreSaber::UI::Leaderboard
 
     void SetPlayButtonState(bool state)
     {
-        return state ? PinkCore::RequirementAPI::EnablePlayButton(modInfo) : PinkCore::RequirementAPI::DisablePlayButton(modInfo);
+        if (state) PinkCore::RequirementAPI::EnablePlayButton(modInfo);
+        else {
+            // this is really icky since other mods rely on the pinkcore and the play button to see whether a level is playable or not
+            // since scoresaber likes to disables this while the leaderboard loads, it causes some issues with other mods
+            std::thread([](){
+                std::this_thread::sleep_for(std::chrono::milliseconds(60));
+                QuestUI::MainThreadScheduler::Schedule([](){
+                    if (PlayerService::playerInfo.loginStatus == PlayerService::LoginStatus::Error) return;
+                    PinkCore::RequirementAPI::DisablePlayButton(modInfo);
+                });
+            }).detach();
+        }
     }
 
     void SetErrorState(LoadingControl* loadingControl, std::string errorText, bool showRefreshButton = false)
@@ -192,6 +208,7 @@ namespace ScoreSaber::UI::Leaderboard
     }
 
     void ScoreSaberLeaderboardViewController::onLeaderboardSet(IDifficultyBeatmap* difficultyBeatmap){
+        SetPlayButtonState(true);
         auto* view = leaderboardTableView->get_transform()->GetComponentInChildren<LeaderboardTableView*>();
         auto* loadingControl = leaderboardTableView->GetComponent<LoadingControl*>();
         this->RefreshLeaderboard(difficultyBeatmap, view, _lastScopeIndex, loadingControl, System::Guid::NewGuid().ToString());
