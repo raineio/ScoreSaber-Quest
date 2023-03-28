@@ -33,6 +33,9 @@ DECLARE_CLASS_CODEGEN(ScoreSaber::UI::Leaderboard, ScoreSaberLeaderboardViewCont
     void ChangeScope();
     void CheckPage();
     void SetUploadState(bool state, bool success, std::string errorMessage = "<color=#fc8181>Upload failed</color>");
+    bool IsReplayWatchingAllowed();
+    void AllowReplayWatching(bool value);
     private:
+        bool _allowReplayWatching = true;
         void CreateLoadingControl();
 )

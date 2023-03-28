@@ -161,7 +161,7 @@ namespace ScoreSaber::Services::PlayerService
         std::thread t([] {
             while (true)
             {
-                if(ScoreSaber::UI::Other::ScoreSaberLeaderboardView::ScoreSaberBanner == nullptr)
+                if(leaderboard.get_panelViewController() == nullptr)
                 {
                     std::this_thread::sleep_for(std::chrono::seconds(1));
                 }

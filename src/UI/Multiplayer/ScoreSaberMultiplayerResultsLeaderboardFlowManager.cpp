@@ -4,7 +4,6 @@
 #include "GlobalNamespace/MenuTransitionsHelper.hpp"
 #include "HMUI/ViewController_AnimationType.hpp"
 #include "Services/PlayerService.hpp"
-#include "UI/Other/ScoreSaberLeaderboardView.hpp"
 #include "custom-types/shared/delegate.hpp"
 #include "hooks.hpp"
 #include <functional>

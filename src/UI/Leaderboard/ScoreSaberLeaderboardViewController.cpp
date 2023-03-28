@@ -329,4 +329,14 @@ namespace ScoreSaber::UI::Leaderboard
         loadingControl->refreshContainer->SetActive(false);
         GameObject::Destroy(loadingControl->refreshText->GetComponent<Polyglot::LocalizedTextMeshProUGUI*>());
     }
+
+    void ScoreSaberLeaderboardViewController::AllowReplayWatching(bool value)
+    {
+        _allowReplayWatching = value;
+    }
+
+    bool ScoreSaberLeaderboardViewController::IsReplayWatchingAllowed()
+    {
+        return _allowReplayWatching;
+    }
 }

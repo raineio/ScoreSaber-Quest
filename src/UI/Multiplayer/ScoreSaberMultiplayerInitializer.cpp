@@ -1,11 +1,13 @@
 #include "UI/Multiplayer/ScoreSaberMultiplayerInitializer.hpp"
 
 #include "Services/PlayerService.hpp"
-#include "UI/Other/ScoreSaberLeaderboardView.hpp"
 #include "custom-types/shared/delegate.hpp"
 #include <functional>
+#include "UI/Leaderboard/ScoreSaberCustomLeaderboard.hpp"
 
 DEFINE_TYPE(ScoreSaber::UI::Multiplayer, ScoreSaberMultiplayerInitializer);
+
+extern ScoreSaber::UI::Leaderboard::CustomLeaderboard leaderboard;
 
 namespace ScoreSaber::UI::Multiplayer
 {
@@ -32,11 +34,11 @@ namespace ScoreSaber::UI::Multiplayer
     void ScoreSaberMultiplayerInitializer::GameServerLobbyFlowCoordinator_didSetupEvent()
     {
         Services::PlayerService::AuthenticateUser([&](Services::PlayerService::LoginStatus loginStatus) {});
-        Other::ScoreSaberLeaderboardView::AllowReplayWatching(false);
+        leaderboard.get_leaderboardViewController()->AllowReplayWatching(false);
     }
 
     void ScoreSaberMultiplayerInitializer::GameServerLobbyFlowCoordinator_didFinishEvent()
     {
-        Other::ScoreSaberLeaderboardView::AllowReplayWatching(true);
+        leaderboard.get_leaderboardViewController()->AllowReplayWatching(true);
     }
 } // namespace ScoreSaber::UI::Multiplayer

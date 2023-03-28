@@ -250,8 +250,8 @@ namespace ScoreSaber::UI::Other
                     replayEnabled = true;
                 }
                 
-                if(!ScoreSaberLeaderboardView::IsReplayWatchingAllowed())
-                    replayEnabled = false;
+                // if(!leaderboard.get_leaderboardViewController()->IsReplayWatchingAllowed())
+                //     replayEnabled = false;
 
                 SetReplayButtonState(replayEnabled);
             })));
